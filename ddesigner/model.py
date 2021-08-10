@@ -39,7 +39,7 @@ class Node(ABC):
     def __post_init__(self):
         self._next: str = None    # Cache
 
-    def get_next(self, variables: Mapping = {}):
+    def get_next(self, variables: Mapping = {}, *args, **kwargs):
         """Get next node.
 
         Internally, self._compute is called. Multiple calls will
@@ -50,6 +50,9 @@ class Node(ABC):
         the next node will be recalculated using self._compute.
 
         None is returned if there is currently no next node to go to.
+
+        Any additional arguments (args, kwargs) will be passed to the
+        _compute method.
         """
         if self.parent is None:
             raise NodeError(
@@ -57,7 +60,7 @@ class Node(ABC):
 
         # If not initialized, compute
         if self._next is None:
-            self._next = self._compute(variables)
+            self._next = self._compute(variables, *args, **kwargs)
 
         # If the value is still None, return it
         if self._next is None:
@@ -66,7 +69,7 @@ class Node(ABC):
         return self.parent.nodes[self._next]
 
     @abstractmethod
-    def _compute(self, variables: Mapping) -> str:
+    def _compute(self, variables: Mapping, *args, **kwargs) -> str:
         """Make internal computation and return the next node's name.
 
         Override this method in subclasses to define custom behaviour
@@ -80,6 +83,9 @@ class Node(ABC):
         is not None.
 
         If there is not next node to go to, return None.
+
+        Additional arguments (args, kwargs) are passed from the get_next
+        method.
         """
         pass
 
@@ -140,17 +146,20 @@ class Dialogue:
         """Set a local variable."""
         self.variables[index] = value
 
-    def next(self):
+    def next(self, *args, **kwargs):
         """Update internal state to the next node and return it.
 
         If the next node is None, the state will not be updated.
+
+        Any additional arguments (args, kwargs) will be passed to
+        the node's get_next(...) method.
         """
-        next_ = self.current_node.get_next(self.variables)
+        next_ = self.current_node.get_next(self.variables, *args, **kwargs)
         self.current_node = next_ or self.current_node
 
         return next_
 
-    def next_iter(self):
+    def next_iter(self, *args, **kwargs):
         """Update internal state to the next blocking node.
 
         All the non-blocking nodes found will be computed but
@@ -160,8 +169,11 @@ class Dialogue:
 
         Nodes' blocking property can be changed via the class field
         Node.blocking (possible values come from the Blocking enum).
+
+        Any additional arguments (args, kwargs) will be passed to
+        the node's get_next(...) method.
         """
-        while ((node := self.next()) is not None
+        while ((node := self.next(*args, **kwargs)) is not None
                and node.blocking == Blocking.NON_BLOCKING):
             pass
 

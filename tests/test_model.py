@@ -8,6 +8,15 @@ class SimpleBlockingNode(SimpleNode):
     blocking = Blocking.BLOCKING
 
 
+class ToggleNode(Node):
+    current_val = None
+
+    def _compute(self, variables, val: bool):
+        self.current_val = val
+
+        return None
+
+
 @pytest.fixture
 def simple_node_data():
     arr = [SimpleNode("START", "", "", "2"), SimpleNode("2", "", "", "3"),
@@ -59,3 +68,9 @@ class TestDialogue:
         dial = Dialogue(simple_node_data)
 
         assert dial.next_iter() is None
+
+    def test_arguments_pass(self):
+        dial = Dialogue(DialogueData([ToggleNode("START", "", "")], {}))
+
+        dial.next_iter(True)
+        assert dial.current_node.current_val
