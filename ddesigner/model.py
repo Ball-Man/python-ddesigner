@@ -145,3 +145,13 @@ class Dialogue:
     def __setitem__(self, index, value):
         """Set a local variable."""
         self.variables[index] = value
+
+    def next(self):
+        """Update internal state to the next node and return it.
+
+        If the next node is None, the state will not be updated.
+        """
+        next_ = self.current_node.get_next(self.variables)
+        self.current_node = next_ or self.current_node
+
+        return next_

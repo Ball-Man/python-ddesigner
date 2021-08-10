@@ -29,3 +29,15 @@ class TestDialogue:
         assert dial['var1'] == 'not default'
         assert dial.data.variables['var1'] == 'default'
         assert dial['var2'] == 'default'
+
+    def test_next(self, simple_node_data):
+        dial = Dialogue(simple_node_data)
+
+        dial.next()
+        assert dial.current_node.node_name == "2"
+
+        dial.next()
+        assert dial.current_node.node_name == "3"
+
+        assert dial.next() is None
+        assert dial.current_node.node_name == "3"
