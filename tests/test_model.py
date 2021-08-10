@@ -4,10 +4,23 @@ from ddesigner.model import *
 import pytest
 
 
+class SimpleBlockingNode(SimpleNode):
+    blocking = Blocking.BLOCKING
+
+
 @pytest.fixture
 def simple_node_data():
     arr = [SimpleNode("START", "", "", "2"), SimpleNode("2", "", "", "3"),
            SimpleNode("3", "", "", None)]
+
+    return DialogueData(arr, {'var1': 'default', 'var2': 'default'})
+
+
+@pytest.fixture
+def simple_blocked_data():
+    arr = [SimpleNode("START", "", "", "2"), SimpleNode("2", "", "", "3"),
+           SimpleBlockingNode("3", "", "", "4"), SimpleNode("4", "", "", "5"),
+           SimpleNode("5", "", "", None)]
 
     return DialogueData(arr, {'var1': 'default', 'var2': 'default'})
 
@@ -41,3 +54,8 @@ class TestDialogue:
 
         assert dial.next() is None
         assert dial.current_node.node_name == "3"
+
+    def test_next_iter(self, simple_node_data):
+        dial = Dialogue(simple_node_data)
+
+        assert dial.next_iter() is None

@@ -1,7 +1,7 @@
 """The main model definitions."""
 import enum
 from dataclasses import *
-from typing import Iterable, Mapping, Tuple, Union
+from typing import Iterable, Mapping, Tuple, Union, ClassVar
 from abc import abstractmethod, ABC
 from collections import ChainMap
 
@@ -21,10 +21,9 @@ class NodeError(Exception):
     pass
 
 
-class NextNode(enum.Enum):
-    """Special value for next node."""
-    NOT_INITIALIZED = 0
-    NONE = 1
+class Blocking(enum.Enum):
+    NON_BLOCKING = 0
+    BLOCKING = 1
 
 
 @dataclass
@@ -34,7 +33,8 @@ class Node(ABC):
     node_type: str
     title: str
 
-    parent = None
+    parent: ClassVar = None
+    blocking: ClassVar = Blocking.NON_BLOCKING
 
     def __post_init__(self):
         self._next: str = None    # Cache
@@ -155,3 +155,20 @@ class Dialogue:
         self.current_node = next_ or self.current_node
 
         return next_
+
+    def next_iter(self):
+        """Update internal state to the next blocking node.
+
+        All the non-blocking nodes found will be computed but
+        immediately skipped. The first blocking node found will stop
+        the iteration and return its value. The iteration will also
+        stop if None is found (end of a branch).
+
+        Nodes' blocking property can be changed via the class field
+        Node.blocking (possible values come from the Blocking enum).
+        """
+        while ((node := self.next()) is not None
+               and node.blocking == Blocking.NON_BLOCKING):
+            pass
+
+        return node
