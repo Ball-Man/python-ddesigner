@@ -3,6 +3,7 @@ import enum
 from dataclasses import *
 from typing import Iterable, Mapping, Tuple, Union
 from abc import abstractmethod, ABC
+from collections import ChainMap
 
 
 START_NODE_NAME = "START"
@@ -121,9 +122,26 @@ class DialogueData:
 
 
 class Dialogue:
-    """A state machine encapsulating a DialogueData instance."""
+    """A state machine encapsulating a DialogueData instance.
+
+    Internal state keeps track of the current node (self.current_node)
+    and variables (accessible as a mapping).
+
+    Variables are looked up using a ChainMap, meaning that the
+    contained DialogueData variables are kept constant. Do not manually
+    modify DialogueData variables.
+    """
 
     def __init__(self, data: DialogueData):
         self.data = data
 
-        self.current_node = data.nodes[START_NODE_NAME]
+        self.current_node = data.start_node
+        self.variables = ChainMap({}, data.variables)
+
+    def __getitem__(self, index):
+        """Access a local variable."""
+        return self.variables[index]
+
+    def __setitem__(self, index, value):
+        """Set a local variable."""
+        self.variables[index] = value
