@@ -38,7 +38,7 @@ class Node(ABC):
     def __post_init__(self):
         self._next: str = None    # Cache
 
-    def next(self, variables: Mapping):
+    def get_next(self, variables: Mapping = {}):
         """Get next node.
 
         Internally, self._compute is called. Multiple calls will
@@ -71,7 +71,7 @@ class Node(ABC):
         Override this method in subclasses to define custom behaviour
         for a Node.
 
-        The method is used by self.next to determine the name of the
+        The method is used by self.get_next to determine the name of the
         next node. The returned value will be cached, hence this method
         will ideally be called only once.
 
@@ -114,6 +114,10 @@ class DialogueData:
         # Link nodes to this instance
         for node in nodes:
             node.parent = self
+
+    @property
+    def start_node(self):
+        return self.nodes[START_NODE_NAME]
 
 
 class Dialogue:
