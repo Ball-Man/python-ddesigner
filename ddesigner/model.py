@@ -1,7 +1,7 @@
 """The main model definitions."""
 import enum
 from dataclasses import *
-from typing import Iterable, Mapping, Tuple, Union, ClassVar
+from typing import Iterable, Mapping, ClassVar
 from abc import abstractmethod, ABC
 from collections import ChainMap
 
@@ -92,12 +92,6 @@ class SimpleNode(Node):
     def _compute(self, variables: Mapping) -> str:
         """Basic behaviour, return next node's name."""
         return self.next
-
-
-# Dictionary mapping type names to actual type classes
-NODE_TYPE_MAP = {
-    "start": SimpleNode
-}
 
 
 class DialogueData:
