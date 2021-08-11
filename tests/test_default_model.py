@@ -22,6 +22,13 @@ def default_model_data1():
 
 
 @pytest.fixture
+def default_model_data2():
+    arr = SimpleNode('START', '', '', '1'), WaitNode('1', '', '', None, 10)
+
+    return DialogueData(arr, {})
+
+
+@pytest.fixture
 def random_data_model1():
     arr = (SimpleNode('START', '', '', '1'),
            RandomBranchNode('1', '', '', possibilities=2,
@@ -99,3 +106,9 @@ def test_set_variable_node(default_model_data1):
 
     dial.next()
     assert not dial['bool_ok']
+
+
+def test_wait_node(default_model_data2):
+    dial = Dialogue(default_model_data2)
+
+    assert dial.next_iter().time == 10

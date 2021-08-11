@@ -119,3 +119,14 @@ class SetVariableNode(SimpleNode):
         variables[self.var_name] = value
 
         return super()._compute(variables)
+
+
+@dataclass
+class WaitNode(SimpleNode):
+    """Node used for the "wait" type.
+
+    A blocking node that carries a time value.
+    """
+    time: float = 0
+
+    blocking: ClassVar = Blocking.BLOCKING
