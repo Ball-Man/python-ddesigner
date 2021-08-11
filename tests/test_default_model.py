@@ -133,6 +133,8 @@ class TestExecuteNode:
             pass
 
         ExecuteNode.subscribe(moo)
+        with pytest.raises(TypeError):
+            ExecuteNode.subscribe(2)
 
         assert ExecuteNode.subscribers == {moo}
 

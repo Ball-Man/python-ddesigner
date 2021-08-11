@@ -1,6 +1,6 @@
 """Default model implementation for the current DD version."""
 from dataclasses import *
-from typing import ClassVar, Any
+from typing import ClassVar, Any, Callable
 import random
 import enum
 
@@ -164,7 +164,7 @@ class ExecuteNode(SimpleNode):
         return super()._compute(variables)
 
     @classmethod
-    def subscriber(cls, fun):
+    def subscriber(cls, fun: Callable):
         """Decorator for subscribers.
 
         Decorate a function to automatically make it a subscruber.
@@ -174,8 +174,11 @@ class ExecuteNode(SimpleNode):
         return fun
 
     @classmethod
-    def subscribe(cls, fun):
+    def subscribe(cls, fun: Callable):
         """Add a subscriber."""
+        if not callable(fun):
+            raise TypeError(f'{fun} is not callable')
+
         cls.subscribers.add(fun)
 
     @classmethod
