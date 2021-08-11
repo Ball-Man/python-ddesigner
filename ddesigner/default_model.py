@@ -1,8 +1,10 @@
 """Default model implementation for the current DD version."""
-from ddesigner.model import *
-
 from dataclasses import *
 from typing import ClassVar
+import random
+
+from ddesigner.model import *
+
 
 # Dictionary mapping type names to actual type classes
 NODE_TYPE_MAP = {
@@ -30,4 +32,24 @@ class ShowMessageNode(SimpleNode):
 
     def _compute(self, variables, choice: int = None):
         """Simply go to next. TODO: support choices."""
-        super()._compute(variables)
+        return super()._compute(variables)
+
+
+@dataclass
+class RandomBranchNode(Node):
+    """Node used for the "random_branch" type.
+
+    A non-blocking node that chooses randomly between a number of
+    branches.
+    """
+    branches: dict = field(default_factory=lambda: {})
+    possibilities: int = 2
+
+    cache: ClassVar = False
+    rand: ClassVar = random
+
+    def _compute(self, variables):
+        """Choose randomly between the given branches."""
+        return self.rand.choice(
+            [branch for key, branch in self.branches.items()
+             if int(key) <= self.possibilities])
