@@ -35,8 +35,16 @@ class ShowMessageNode(SimpleNode):
         return super()._compute(variables)
 
 
+class RandomNode(Node):
+    """Abstract class for a Node based on a random generation.
+
+    The random generator is kept in the RandomNode.rand attribute.
+    """
+    rand = random
+
+
 @dataclass
-class RandomBranchNode(Node):
+class RandomBranchNode(RandomNode):
     """Node used for the "random_branch" type.
 
     A non-blocking node that chooses randomly between a number of
@@ -46,7 +54,6 @@ class RandomBranchNode(Node):
     possibilities: int = 2
 
     cache: ClassVar = False
-    rand: ClassVar = random
 
     def _compute(self, variables):
         """Choose randomly between the given branches."""
