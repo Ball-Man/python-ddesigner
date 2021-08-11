@@ -163,6 +163,10 @@ class ExecuteNode(SimpleNode):
 
         return super()._compute(variables)
 
+    def _trigger_subscribers(self, variables):
+        for sub in self.subscribers:
+            sub(self.text, variables)
+
     @classmethod
     def subscriber(cls, fun: Callable):
         """Decorator for subscribers.

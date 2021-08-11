@@ -23,7 +23,8 @@ def default_model_data1():
 
 @pytest.fixture
 def default_model_data2():
-    arr = SimpleNode('START', '', '', '1'), WaitNode('1', '', '', None, 10)
+    arr = (ExecuteNode('START', '', '', '1', 'value'),
+           WaitNode('1', '', '', None, 10))
 
     return DialogueData(arr, {})
 
@@ -159,3 +160,17 @@ class TestExecuteNode:
         ExecuteNode.clear_subscribers()
 
         assert ExecuteNode.subscribers == set()
+
+    def test_trigger_subscribers(self, default_model_data2, reset_execute):
+        dial = Dialogue(default_model_data2)
+
+        output = ''
+
+        @ExecuteNode.subscriber
+        def foo(command, variables):
+            nonlocal output
+            output = command
+
+        dial.next_iter()
+
+        assert output == 'value'
