@@ -4,6 +4,7 @@ from typing import ClassVar, Any, Callable
 import random
 import enum
 
+from ddesigner.conditional import arithm_expression_evaluate
 from ddesigner.model import *
 
 
@@ -200,6 +201,8 @@ class ExecuteNode(SimpleNode):
 class ConditionBranchNode(Node):
     """Node used for the "condition_branch" type.
 
+    Non-blocking node.
+
     The default implementation uses an arithmetcal parser to parse
     the given condition string, and uses the current variables' state to
     determine the truth value of the whole expression.
@@ -207,3 +210,8 @@ class ConditionBranchNode(Node):
     text: str = ''
     branches: dict = field(
         default_factory=lambda: {'True': None, 'False': None})
+
+    def _compute(self, variables):
+        value = arithm_expression_evaluate(self.text, variables)
+
+        return self.branches[str(bool(value))]

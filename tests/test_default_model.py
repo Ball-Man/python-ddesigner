@@ -24,9 +24,12 @@ def default_model_data1():
 @pytest.fixture
 def default_model_data2():
     arr = (ExecuteNode('START', '', '', '1', 'value'),
-           WaitNode('1', '', '', None, 10))
+           WaitNode('1', '', '', '2', 10),
+           ConditionBranchNode('2', '', '', 'var1 > 10',
+                               {'True': '3', 'False': '4'}),
+           ShowMessageNode('3', '', '', None))
 
-    return DialogueData(arr, {})
+    return DialogueData(arr, {'var1': 11})
 
 
 @pytest.fixture
@@ -174,3 +177,10 @@ class TestExecuteNode:
         dial.next_iter()
 
         assert output == 'value'
+
+
+def test_condition_branch_node(default_model_data2):
+    dial = Dialogue(default_model_data2)
+
+    dial.next_iter()
+    print(dial.next_iter())
