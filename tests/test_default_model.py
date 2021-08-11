@@ -9,11 +9,16 @@ import pytest
 
 @pytest.fixture
 def default_model_data1():
-    arr = (SimpleNode('START', '', '', '1'), SimpleNode('1', '', '', '2'),
-           ShowMessageNode('2', '', '', '3', text={'ENG': 'hello world'}),
-           SimpleNode('3', '', '', None))
+    arr = (SetVariableNode('START', '', '', '1', 'var1', 1),
+           SetVariableNode('1', '', '', '2', 'var1', 1,
+                           operation_type=OperationType.ADD.value),
+           SetVariableNode('2', '', '', '3', 'var1', 1,
+                           operation_type=OperationType.SUBTRACT.value),
+           SetVariableNode('3', '', '', '4', 'bool_ok', toggle=True),
+           ShowMessageNode('4', '', '', '5', text={'ENG': 'hello world'}),
+           SimpleNode('5', '', '', None))
 
-    return DialogueData(arr, {})
+    return DialogueData(arr, {'bool_ok': True})
 
 
 @pytest.fixture
@@ -78,3 +83,19 @@ def test_chance_branch_node(random_data_model2, rand):
         reached[dial.next_iter().text['ENG']] += 1
 
     assert reached['branch1'] > reached['branch2'] * 9
+
+
+def test_set_variable_node(default_model_data1):
+    dial = Dialogue(default_model_data1)
+
+    dial.next()
+    assert dial['var1'] == 1
+
+    dial.next()
+    assert dial['var1'] == 2
+
+    dial.next()
+    assert dial['var1'] == 1
+
+    dial.next()
+    assert not dial['bool_ok']

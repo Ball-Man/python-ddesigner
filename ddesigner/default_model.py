@@ -1,7 +1,8 @@
 """Default model implementation for the current DD version."""
 from dataclasses import *
-from typing import ClassVar
+from typing import ClassVar, Any
 import random
+import enum
 
 from ddesigner.model import *
 
@@ -80,3 +81,41 @@ class ChanceBranchNode(RandomNode):
         chance_tup = self.chance_1, self.chance_2
         branches_tup = self.branches['1'], self.branches['2']
         return self.rand.choices(branches_tup, weights=chance_tup)[0]
+
+
+class OperationType(enum.Enum):
+    """Supported operation types for SetVariableNodes."""
+    SET = "SET"
+    ADD = "ADD"
+    SUBTRACT = "SUBTRACT"
+
+
+@dataclass
+class SetVariableNode(SimpleNode):
+    """Node used for the "set_local_variable" type.
+
+    A non-blocking node that sets a local variable. Supported features:
+    Set a value, increase/decrease a value, toggle a boolean.
+    """
+    var_name: str = ""
+    value: Any = None
+    toggle: bool = None
+    operation_type: str = "SET"
+
+    def _compute(self, variables):
+        """Operate on the variables and return the next node."""
+        # Check if it's a toggle
+        if self.toggle:
+            value = not variables[self.var_name]
+        else:
+            value = self.value
+
+        # Calculate relative operations
+        if self.operation_type == OperationType.ADD.value:
+            value += variables[self.var_name]
+        elif self.operation_type == OperationType.SUBTRACT.value:
+            value = variables[self.var_name] - value
+
+        variables[self.var_name] = value
+
+        return super()._compute(variables)
