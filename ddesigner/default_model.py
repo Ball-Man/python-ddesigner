@@ -126,3 +126,64 @@ class WaitNode(SimpleNode):
     time: float = 0
 
     blocking: ClassVar = Blocking.BLOCKING
+
+
+@dataclass
+class ExecuteNode(SimpleNode):
+    """Node used for the "execute" type.
+
+    A non-blocking node.
+
+    A subscribable class. Subscribers will be called and will receive
+    the node's command (self.text) and the current variables state
+    (a mapping). Any subscribers' return value will be ignored.
+    Subscribers shall execute do whatever they want with the given data
+    (eg. in gamedev cases: play a specific sound).
+    NOTE: subscribers will be shared between all the instances of this
+          class (for practical reasons, instance wide subscribers would
+          be hard to manage in a real case scenario).
+
+    No duplicate subscibers are allowed.
+
+    Subscribe using ExecuteNode.subscribe method, or the
+    ExecuteNode.subscriber decorator, like so:
+
+    @ExecuteNode.subscriber
+    def sub(command, variables):
+        # ...
+
+    The next node is given by the self.next attribute.
+    """
+    text: str = ""
+
+    subscribers: ClassVar[set] = set()
+
+    def _compute(self, variables):
+        self._trigger_subscribers(variables)
+
+        return super()._compute(variables)
+
+    @classmethod
+    def subscriber(cls, fun):
+        """Decorator for subscribers.
+
+        Decorate a function to automatically make it a subscruber.
+        """
+        cls.subscribe(fun)
+
+        return fun
+
+    @classmethod
+    def subscribe(cls, fun):
+        """Add a subscriber."""
+        cls.subscribers.add(fun)
+
+    @classmethod
+    def unsubscribe(cls, fun):
+        """Remove a subscriber."""
+        cls.subscribers.remove(fun)
+
+    @classmethod
+    def clear_subscribers(cls):
+        """Remove all subscribers."""
+        cls.subscribers.clear()

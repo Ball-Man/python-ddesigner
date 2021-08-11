@@ -112,3 +112,48 @@ def test_wait_node(default_model_data2):
     dial = Dialogue(default_model_data2)
 
     assert dial.next_iter().time == 10
+
+
+class TestExecuteNode:
+
+    @pytest.fixture
+    def reset_execute(self):
+        yield
+        ExecuteNode.subscribers.clear()
+
+    def test_subscriber_decorator(self, reset_execute):
+        @ExecuteNode.subscriber
+        def foo(command, variables):
+            pass
+
+        assert ExecuteNode.subscribers == {foo}
+
+    def test_subscribe(self, reset_execute):
+        def moo(command, variables):
+            pass
+
+        ExecuteNode.subscribe(moo)
+
+        assert ExecuteNode.subscribers == {moo}
+
+    def test_unsubscribe(self, reset_execute):
+        def koo(command, variables):
+            pass
+
+        ExecuteNode.subscribe(koo)
+        ExecuteNode.unsubscribe(koo)
+
+        assert ExecuteNode.subscribers == set()
+
+    def test_clear_subscribers(self):
+        def doo(command, variables):
+            pass
+
+        def soo(command, variables):
+            pass
+
+        ExecuteNode.subscribe(doo)
+        ExecuteNode.subscribe(soo)
+        ExecuteNode.clear_subscribers()
+
+        assert ExecuteNode.subscribers == set()
