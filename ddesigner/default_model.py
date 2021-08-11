@@ -54,8 +54,6 @@ class RandomBranchNode(RandomNode):
     branches: dict = field(default_factory=lambda: {'1': None})
     possibilities: int = 2
 
-    cache: ClassVar = False
-
     def _compute(self, variables):
         """Choose randomly between the given branches."""
         return self.rand.choice(
@@ -73,8 +71,6 @@ class ChanceBranchNode(RandomNode):
     branches: dict = field(default_factory=lambda: {'1': None, '2': None})
     chance_1: int = 0
     chance_2: int = 100
-
-    cache: ClassVar = False
 
     def _compute(self, variables):
         """Choose one of the two branches."""

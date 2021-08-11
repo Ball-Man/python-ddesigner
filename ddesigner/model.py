@@ -35,21 +35,11 @@ class Node(ABC):
 
     parent: ClassVar = None
     blocking: ClassVar = Blocking.NON_BLOCKING
-    cache: ClassVar = True
-
-    def __post_init__(self):
-        self._next: str = None    # Cache
 
     def get_next(self, variables: Mapping = {}, *args, **kwargs):
         """Get next node.
 
-        Internally, self._compute is called. Multiple calls will
-        return the same cached value (hence _compute will not be called)
-        unless the cached value is None. To disable the caching system
-        set self.cache to False.
-
-        If the cached value is None when this method is invoked,
-        the next node will be recalculated using self._compute.
+        Internally, self._compute is called (each time!).
 
         None is returned if there is currently no next node to go to.
 
@@ -60,15 +50,11 @@ class Node(ABC):
             raise NodeError(
                 "Parent not set. This node is not part of a DialogueData.")
 
-        # If not initialized, compute
-        if self._next is None or not self.cache:
-            self._next = self._compute(variables, *args, **kwargs)
+        # Compute
+        next_ = self._compute(variables, *args, **kwargs)
 
-        # If the value is still None, return it
-        if self._next is None:
-            return None
-
-        return self.parent.nodes[self._next]
+        # If the value is None, return it otherwise return the next node
+        return next_ and self.parent.nodes[next_]
 
     @abstractmethod
     def _compute(self, variables: Mapping, *args, **kwargs) -> str:
@@ -76,11 +62,6 @@ class Node(ABC):
 
         Override this method in subclasses to define custom behaviour
         for a Node.
-
-        The method is used by self.get_next to determine the name of the
-        next node. The returned value will be cached, hence this method
-        will ideally be called only once. To disable the caching
-        set self.cache to False.
 
         At the time of the call, it is safe to assume that self.parent
         is not None.
