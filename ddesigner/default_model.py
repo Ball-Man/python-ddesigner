@@ -194,3 +194,16 @@ class ExecuteNode(SimpleNode):
     def clear_subscribers(cls):
         """Remove all subscribers."""
         cls.subscribers.clear()
+
+
+@dataclass
+class ConditionBranchNode(Node):
+    """Node used for the "condition_branch" type.
+
+    The default implementation uses an arithmetcal parser to parse
+    the given condition string, and uses the current variables' state to
+    determine the truth value of the whole expression.
+    """
+    text: str = ''
+    branches: dict = field(
+        default_factory=lambda: {'True': None, 'False': None})
