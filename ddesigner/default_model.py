@@ -10,7 +10,7 @@ from ddesigner.model import *
 
 # Dictionary mapping type names to actual type classes
 NODE_TYPE_MAP = {
-    "start": SimpleNode
+    'start': SimpleNode
 }
 
 
@@ -25,13 +25,13 @@ class ShowMessageNode(SimpleNode):
     You can use ddesigner.arithm_expression_evaluate to evaluate
     conditional expressions.
     """
-    character: list = field(default_factory=lambda: ["", 0])
-    file: str = ""
+    character: list = field(default_factory=lambda: ['', 0])
+    file: str = ''
     is_box: bool = False
-    object_path: str = ""
+    object_path: str = ''
     slide_camera: bool = True
     speaker_type: int = 0
-    text: dict = field(default_factory=lambda: {"ENG": ""})
+    text: dict = field(default_factory=lambda: {'ENG': ''})
     choices: list = field(default_factory=lambda: [])
 
     blocking: ClassVar = Blocking.BLOCKING

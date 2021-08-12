@@ -6,7 +6,7 @@ from abc import abstractmethod, ABC
 from collections import ChainMap
 
 
-START_NODE_NAME = "START"
+START_NODE_NAME = 'START'
 
 
 class VariableType(enum.Enum):
@@ -48,7 +48,7 @@ class Node(ABC):
         """
         if self.parent is None:
             raise NodeError(
-                "Parent not set. This node is not part of a DialogueData.")
+                'Parent not set. This node is not part of a DialogueData.')
 
         # Compute
         next_ = self._compute(variables, *args, **kwargs)
