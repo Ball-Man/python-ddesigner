@@ -15,7 +15,8 @@ def default_model_data1():
            SetVariableNode('2', '', '', '3', 'var1', 1,
                            operation_type=OperationType.SUBTRACT.value),
            SetVariableNode('3', '', '', '4', 'bool_ok', toggle=True),
-           ShowMessageNode('4', '', '', '5', text={'ENG': 'hello world'}),
+           ShowMessageNode('4', '', '', None, text={'ENG': 'hello world'},
+                           choices=[{'is_condition': False, 'next': '5'}]),
            SimpleNode('5', '', '', None))
 
     return DialogueData(arr, {'bool_ok': True})
@@ -65,8 +66,7 @@ def test_show_message_node(default_model_data1):
     dial = Dialogue(default_model_data1)
 
     assert dial.next_iter().text['ENG'] == 'hello world'
-    assert dial.next() is not None
-    assert dial.next_iter() is None
+    assert dial.next(0).node_name == '5'
 
 
 def test_random_branch_node(random_data_model1, rand):

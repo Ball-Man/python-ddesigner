@@ -18,8 +18,12 @@ NODE_TYPE_MAP = {
 class ShowMessageNode(SimpleNode):
     """Node used for the "show_message" type.
 
-    It's a blocking node, with optional support to multiple conditioned
-    choices (TODO).
+    By passing an integer to get_next(...) a choice from the message
+    can be selected. Conditional choices shall be filtered
+    externally by the user code.
+
+    You can use ddesigner.arithm_expression_evaluate to evaluate
+    conditional expressions.
     """
     character: list = field(default_factory=lambda: ["", 0])
     file: str = ""
@@ -34,6 +38,9 @@ class ShowMessageNode(SimpleNode):
 
     def _compute(self, variables, choice: int = None):
         """Simply go to next. TODO: support choices."""
+        if choice is not None:
+            return self.choices[choice]['next']
+
         return super()._compute(variables)
 
 
