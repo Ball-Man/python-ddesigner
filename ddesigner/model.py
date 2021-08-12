@@ -155,10 +155,11 @@ class Dialogue:
         Node.blocking (possible values come from the Blocking enum).
 
         Any additional arguments (args, kwargs) will be passed to
-        the node's get_next(...) method.
+        the first computed node (to Node.get_next(...).
+        Subsequent non-blocking nodes will receive no arguments.
         """
-        while ((node := self.next(*args, **kwargs)) is not None
-               and node.blocking == Blocking.NON_BLOCKING):
-            pass
+        node = self.next(*args, **kwargs)
+        while node is not None and node.blocking == Blocking.NON_BLOCKING:
+            node = self.next()
 
         return node
