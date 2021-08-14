@@ -206,3 +206,12 @@ def test_default_from_json(chain1_file):
         pass
 
     assert dial['var1'] == 0
+
+
+def test_default_from_file(chain1_file):
+    dial = Dialogue(ddesigner.from_file(chain1_file))
+
+    while dial.next_iter() is not None:
+        pass
+
+    assert dial['var1'] == 0
