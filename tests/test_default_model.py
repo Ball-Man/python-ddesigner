@@ -1,3 +1,5 @@
+import os.path as op
+
 from collections import Counter
 
 from context import ddesigner
@@ -5,6 +7,8 @@ from ddesigner.default_model import *
 from ddesigner.model import *
 
 import pytest
+
+FILES_PATH = op.join(op.dirname(__file__), 'files')
 
 
 @pytest.fixture
@@ -60,6 +64,14 @@ def random_data_model2():
 @pytest.fixture
 def rand():
     return random.Random(10)
+
+
+@pytest.fixture
+def chain1_file():
+    file = open(op.join(FILES_PATH, 'chain1.json'))
+    yield file
+
+    file.close()
 
 
 def test_show_message_node(default_model_data1):
@@ -184,3 +196,13 @@ def test_condition_branch_node(default_model_data2):
 
     dial.next_iter()
     print(dial.next_iter())
+
+
+def test_default_from_json(chain1_file):
+    json = chain1_file.read()
+    dial = Dialogue(ddesigner.from_json(json))
+
+    while dial.next_iter() is not None:
+        pass
+
+    assert dial['var1'] == 0

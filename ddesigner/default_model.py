@@ -8,12 +8,6 @@ from ddesigner.conditional import arithm_expression_evaluate
 from ddesigner.model import *
 
 
-# Dictionary mapping type names to actual type classes
-NODE_TYPE_MAP = {
-    'start': SimpleNode
-}
-
-
 @dataclass
 class ShowMessageNode(SimpleNode):
     """Node used for the "show_message" type.
@@ -222,3 +216,16 @@ class ConditionBranchNode(Node):
         value = arithm_expression_evaluate(self.text, variables)
 
         return self.branches[str(bool(value))]
+
+
+# Dictionary mapping type names to actual type classes
+NODE_TYPE_MAP = {
+    'start': SimpleNode,
+    'show_message': ShowMessageNode,
+    'random_branch': RandomBranchNode,
+    'chance_branch': ChanceBranchNode,
+    'set_local_variable': SetVariableNode,
+    'wait': WaitNode,
+    'execute': ExecuteNode,
+    'condition_branch': ConditionBranchNode
+}
