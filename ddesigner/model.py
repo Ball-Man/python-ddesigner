@@ -115,12 +115,13 @@ class Dialogue:
     contained DialogueData variables are kept constant. Do not manually
     modify DialogueData variables.
     """
+    global_variables = {}
 
     def __init__(self, data: DialogueData):
         self.data = data
 
         self.current_node = data.start_node
-        self.variables = ChainMap({}, data.variables)
+        self.variables = ChainMap({}, data.variables, self.global_variables)
 
     def __getitem__(self, index):
         """Access a local variable."""

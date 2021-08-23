@@ -43,7 +43,14 @@ def test_simple_node(simple_node_data):
 
 class TestDialogue:
 
-    def test_variables(self, simple_node_data):
+    @pytest.fixture
+    def globals(self):
+        Dialogue.global_variables['var2'] = 'not default'
+        Dialogue.global_variables['global1'] = 'default'
+        yield
+        Dialogue.global_variables.clear()
+
+    def test_variables(self, simple_node_data, globals):
         dial = Dialogue(simple_node_data)
 
         dial['var1'] = 'not default'
@@ -51,6 +58,7 @@ class TestDialogue:
         assert dial['var1'] == 'not default'
         assert dial.data.variables['var1'] == 'default'
         assert dial['var2'] == 'default'
+        assert dial['global1'] == 'default'
 
     def test_next(self, simple_node_data):
         dial = Dialogue(simple_node_data)
