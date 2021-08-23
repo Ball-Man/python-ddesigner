@@ -77,7 +77,7 @@ class Node(ABC):
 @dataclass
 class SimpleNode(Node):
     """Basic node having a "next" field."""
-    next: str
+    next: str = None
 
     def _compute(self, variables: Mapping) -> str:
         """Basic behaviour, return next node's name."""
