@@ -1,7 +1,7 @@
 """The main model definitions."""
 import enum
 from dataclasses import *
-from typing import Iterable, Mapping, ClassVar
+from typing import Iterable, Mapping, ClassVar, Any
 from abc import abstractmethod, ABC
 from collections import ChainMap
 
@@ -115,7 +115,7 @@ class Dialogue:
     contained DialogueData variables are kept constant. Do not manually
     modify DialogueData variables.
     """
-    global_variables = {}
+    global_variables: Mapping[str, Any] = {}
 
     def __init__(self, data: DialogueData):
         self.data = data
