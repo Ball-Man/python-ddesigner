@@ -3,9 +3,15 @@ from dataclasses import *
 from typing import ClassVar, Any, Callable, Sequence
 import random
 import enum
+import re
 
 from ddesigner.conditional import arithm_expression_evaluate
 from ddesigner.model import *
+
+
+# Match all patterns in the form ${varname}. Usage of curly brackets
+# is forbidden.
+RE_VARIABLES_TEXT_PARSER = re.compile(r'\${([^{}]*)}')
 
 
 def apply_parsers(parsers: Sequence[Callable], string: str, language: str,
@@ -17,6 +23,24 @@ def apply_parsers(parsers: Sequence[Callable], string: str, language: str,
     """
     for parser in parsers:
         string = parser(string, language, variables)
+
+    return string
+
+
+def variables_text_parser(string, language, variables) -> str:
+    """Text parser that recognizes and replaces a certain pattern.
+
+    The pattern ${var} gets replaced by variables[var].
+
+    Recognition/substitution is done through regexes.
+    """
+    matches = RE_VARIABLES_TEXT_PARSER.findall(string)
+
+    for match in matches:
+        # If the variable is not found, replace with the name of the
+        # variable.
+        string = RE_VARIABLES_TEXT_PARSER.sub(
+            str(variables.get(match, match)), string, count=1)
 
     return string
 
@@ -52,7 +76,7 @@ class ShowMessageNode(SimpleNode):
 
     # Optional list of callables, used to parse the string in the node
     # in various ways.
-    parsers: ClassVar[list[Callable]] = []
+    parsers: ClassVar[list[Callable]] = [variables_text_parser]
 
     def _compute(self, variables, choice: int = None):
         """Simply go to next. TODO: support choices."""
@@ -61,7 +85,7 @@ class ShowMessageNode(SimpleNode):
 
         return super()._compute(variables)
 
-    def parse_text(self, languge: str = 'ENG',
+    def parse_text(self, language: str = 'ENG',
                    variables: Mapping = {}) -> str:
         """Obtain the string content of the node, properly parsed.
 

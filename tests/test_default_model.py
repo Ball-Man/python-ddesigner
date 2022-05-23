@@ -19,7 +19,7 @@ def default_model_data1():
            SetVariableNode('2', '', '', '3', 'var1', 1,
                            operation_type=OperationType.SUBTRACT.value),
            SetVariableNode('3', '', '', '4', 'bool_ok', toggle=True),
-           ShowMessageNode('4', '', '', None, text={'ENG': 'hello world'},
+           ShowMessageNode('4', '', '', None, text={'ENG': 'hello world ${var1}'},
                            choices=[{'is_condition': False, 'next': '5'}]),
            SimpleNode('5', '', '', None))
 
@@ -77,11 +77,13 @@ def chain1_file():
 def test_show_message_node(default_model_data1):
     dial = Dialogue(default_model_data1)
 
-    assert dial.next_iter().text['ENG'] == 'hello world'
+    node = dial.next_iter()
+    assert node.text['ENG'] == 'hello world ${var1}'
+    assert node.parse_text(variables={'var1': 42}) == 'hello world 42'
     assert dial.next(0).node_name == '5'
 
 
-def test_apply_parsers(default_model_data1):
+def test_apply_parsers():
     def parser1(string, language, variables):
         return f'{string} {language} {variables}'
 
@@ -91,6 +93,20 @@ def test_apply_parsers(default_model_data1):
     result = apply_parsers([parser1, parser2], 'test', 'ENG', {})
 
     assert result == 'test ENG {}1'
+
+
+def test_variables_text_parser():
+    string = '${var1} this is a test ${var2}'
+
+    result_novar = variables_text_parser(string, '', {})
+    assert result_novar == 'var1 this is a test var2'
+
+    result_onevar = variables_text_parser(string, '', {'var1': 42})
+    assert result_onevar == '42 this is a test var2'
+
+    result_fullvar = variables_text_parser(
+        string, '', {'var1': 42, 'var2': 'ok', 'var3': 'useless'})
+    assert result_fullvar == '42 this is a test ok'
 
 
 def test_random_branch_node(random_data_model1, rand):
