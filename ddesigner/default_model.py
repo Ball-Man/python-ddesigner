@@ -31,7 +31,8 @@ def apply_parsers(parsers: Sequence[Callable], string: str, language: str,
 def variables_text_parser(string, language, variables) -> str:
     """Text parser that recognizes and replaces a certain pattern.
 
-    The pattern ${var} gets replaced by variables[var].
+    The pattern ${var} gets replaced by variables[var]. Usage of curly
+    brackets inside the varname (eg. ${var{0}}) is forbidden.
 
     Recognition/substitution is done through regexes.
     """
@@ -62,7 +63,10 @@ class ShowMessageNode(SimpleNode):
     order to obtain some automatic string manipulation (eg.
     substitution of tokens based on variables).
     Such manipulations can be triggered by accessing strings using
-    parse_text(...).
+    parse_text(...) (or equivalently for choice, parse_choices(...)).
+
+    By default, one parser is present: variables_text_parser(...) (see
+    its documentation for details).
     """
     character: list = field(default_factory=lambda: ['', 0])
     file: str = ''
