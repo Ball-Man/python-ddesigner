@@ -22,7 +22,8 @@ def default_model_data1():
            ShowMessageNode('4', '', '', None,
                            text={'ENG': 'hello world ${var1}',
                                  'ESP': 'hola mundo'},
-                           choices=[{'is_condition': False, 'next': '5'}]),
+                           choices=[{'is_condition': False, 'next': '5',
+                                     'text': {'ENG': '${var1} choice'}}]),
            SimpleNode('5', '', '', None))
 
     return DialogueData(arr, {'bool_ok': True})
@@ -88,6 +89,11 @@ def test_show_message_node(default_model_data1):
         language='ITA', variables=variables) == 'hello world 42'
     assert node.parse_text(
         language='ESP', variables=variables) == 'hola mundo'
+
+    assert node.parse_choices(variables=variables)[0] == '42 choice'
+    assert node.parse_choices(
+        language='ITA', variables=variables)[0] == '42 choice'
+
     assert dial.next(0).node_name == '5'
 
 

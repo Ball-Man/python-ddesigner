@@ -90,7 +90,8 @@ class ShowMessageNode(SimpleNode):
                    variables: Mapping = {}) -> str:
         """Obtain the string content of the node, properly parsed.
 
-        Default language is English (ENG).
+        Default language is English (ENG). If a missing language is
+        requested, fallback to the default language.
 
         The resulting string is parsed through all the callables in
         "parsers". The final result is then returned to the user.
@@ -105,6 +106,24 @@ class ShowMessageNode(SimpleNode):
         # string if no language is found
         text = self.text.get(language, self.text.get(DEFAULT_LANGUAGE, ''))
         return apply_parsers(self.parsers, text, language, variables)
+
+    def parse_choices(self, language: str = DEFAULT_LANGUAGE,
+                      variables: Mapping = {}) -> list[str]:
+        """Same as parse_text, but returns a list of choices.
+
+        The returned list is localized (if the language is available)
+        and parsed.
+        """
+        # Could be done with some list comprehension magic but I
+        # unwrapped it to be more clear
+        res = []
+        for choice in self.choices:
+            # Fallback on default language if neeeded, fallback on empty
+            # string if no language is found
+            text = choice['text'].get(
+                language, choice['text'].get(DEFAULT_LANGUAGE, ''))
+            res.append(apply_parsers(self.parsers, text, language, variables))
+        return res
 
 
 class RandomNode(Node):
