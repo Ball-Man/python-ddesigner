@@ -81,6 +81,18 @@ def test_show_message_node(default_model_data1):
     assert dial.next(0).node_name == '5'
 
 
+def test_apply_parsers(default_model_data1):
+    def parser1(string, language, variables):
+        return f'{string} {language} {variables}'
+
+    def parser2(string, language, variables):
+        return string + "1"
+
+    result = apply_parsers([parser1, parser2], 'test', 'ENG', {})
+
+    assert result == 'test ENG {}1'
+
+
 def test_random_branch_node(random_data_model1, rand):
     dial = Dialogue(random_data_model1)
 

@@ -1,11 +1,24 @@
 """Default model implementation for the current DD version."""
 from dataclasses import *
-from typing import ClassVar, Any, Callable
+from typing import ClassVar, Any, Callable, Sequence
 import random
 import enum
 
 from ddesigner.conditional import arithm_expression_evaluate
 from ddesigner.model import *
+
+
+def apply_parsers(parsers: Sequence[Callable], string: str, language: str,
+                  variables: Mapping = {}) -> str:
+    """Apply given list of parsers to a string.
+
+    Each parser should be a callable returning a string. The returned
+    string for each parser is fed to the next.
+    """
+    for parser in parsers:
+        string = parser(string, language, variables)
+
+    return string
 
 
 @dataclass
@@ -18,6 +31,13 @@ class ShowMessageNode(SimpleNode):
 
     You can use ddesigner.arithm_expression_evaluate to evaluate
     conditional expressions.
+
+    Adding callables (accept language (string), message (string),
+    variables (mapping) and return a string) to "parsers" is possible in
+    order to obtain some automatic string manipulation (eg.
+    substitution of tokens based on variables).
+    Such manipulations can be triggered by accessing strings using
+    parse_text(...).
     """
     character: list = field(default_factory=lambda: ['', 0])
     file: str = ''
@@ -30,12 +50,34 @@ class ShowMessageNode(SimpleNode):
 
     blocking: ClassVar = Blocking.BLOCKING
 
+    # Optional list of callables, used to parse the string in the node
+    # in various ways.
+    parsers: ClassVar[list[Callable]] = []
+
     def _compute(self, variables, choice: int = None):
         """Simply go to next. TODO: support choices."""
         if choice is not None:
             return self.choices[choice]['next']
 
         return super()._compute(variables)
+
+    def parse_text(self, languge: str = 'ENG',
+                   variables: Mapping = {}) -> str:
+        """Obtain the string content of the node, properly parsed.
+
+        Default language is English (ENG).
+
+        The resulting string is parsed through all the callables in
+        "parsers". The final result is then returned to the user.
+        Parsers should accept (in this order), a string (language),
+        a string (message), a mapping (variables).
+
+        Passing a mapping (variables) to this method will result in said
+        mapping being passed to all the parsers (eg. useful for
+        substitutions).
+        """
+        return apply_parsers(self.parsers, self.text[language], language,
+                             variables)
 
 
 class RandomNode(Node):
