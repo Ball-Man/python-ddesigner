@@ -19,7 +19,9 @@ def default_model_data1():
            SetVariableNode('2', '', '', '3', 'var1', 1,
                            operation_type=OperationType.SUBTRACT.value),
            SetVariableNode('3', '', '', '4', 'bool_ok', toggle=True),
-           ShowMessageNode('4', '', '', None, text={'ENG': 'hello world ${var1}'},
+           ShowMessageNode('4', '', '', None,
+                           text={'ENG': 'hello world ${var1}',
+                                 'ESP': 'hola mundo'},
                            choices=[{'is_condition': False, 'next': '5'}]),
            SimpleNode('5', '', '', None))
 
@@ -79,7 +81,13 @@ def test_show_message_node(default_model_data1):
 
     node = dial.next_iter()
     assert node.text['ENG'] == 'hello world ${var1}'
-    assert node.parse_text(variables={'var1': 42}) == 'hello world 42'
+
+    variables = {'var1': 42}
+    assert node.parse_text(variables=variables) == 'hello world 42'
+    assert node.parse_text(
+        language='ITA', variables=variables) == 'hello world 42'
+    assert node.parse_text(
+        language='ESP', variables=variables) == 'hola mundo'
     assert dial.next(0).node_name == '5'
 
 

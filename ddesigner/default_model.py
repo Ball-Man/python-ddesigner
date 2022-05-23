@@ -12,6 +12,7 @@ from ddesigner.model import *
 # Match all patterns in the form ${varname}. Usage of curly brackets
 # is forbidden.
 RE_VARIABLES_TEXT_PARSER = re.compile(r'\${([^{}]*)}')
+DEFAULT_LANGUAGE = 'ENG'
 
 
 def apply_parsers(parsers: Sequence[Callable], string: str, language: str,
@@ -85,7 +86,7 @@ class ShowMessageNode(SimpleNode):
 
         return super()._compute(variables)
 
-    def parse_text(self, language: str = 'ENG',
+    def parse_text(self, language: str = DEFAULT_LANGUAGE,
                    variables: Mapping = {}) -> str:
         """Obtain the string content of the node, properly parsed.
 
@@ -100,8 +101,10 @@ class ShowMessageNode(SimpleNode):
         mapping being passed to all the parsers (eg. useful for
         substitutions).
         """
-        return apply_parsers(self.parsers, self.text[language], language,
-                             variables)
+        # Fallback on default language if neeeded, fallback on empty
+        # string if no language is found
+        text = self.text.get(language, self.text.get(DEFAULT_LANGUAGE, ''))
+        return apply_parsers(self.parsers, text, language, variables)
 
 
 class RandomNode(Node):
