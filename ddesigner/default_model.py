@@ -177,7 +177,7 @@ class OperationType(enum.Enum):
     """Supported operation types for SetVariableNodes."""
     SET = "SET"
     ADD = "ADD"
-    SUBTRACT = "SUBTRACT"
+    SUBTRACT = "SUBSTRACT"
 
 
 @dataclass
